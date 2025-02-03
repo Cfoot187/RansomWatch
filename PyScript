@@ -1,0 +1,145 @@
+import os
+import time
+import smtplib
+import requests
+import schedule
+import json
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
+
+# === Load Environment Variables ===
+env_path = os.path.join(os.path.expanduser("~"), ".env")
+if not os.path.exists(env_path):
+    print(f"[⚠] Warning: .env file not found at {env_path}")
+load_dotenv(env_path)
+
+EMAIL_SENDER   = os.getenv("EMAIL_SENDER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
+SMTP_SERVER    = os.getenv("SMTP_SERVER")
+SMTP_PORT_STR  = os.getenv("SMTP_PORT")
+
+# Validate environment variables
+if not all([EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_RECEIVER, SMTP_SERVER, SMTP_PORT_STR]):
+    print("[❌] One or more required environment variables are missing. Please check your .env file.")
+    exit(1)
+try:
+    SMTP_PORT = int(SMTP_PORT_STR)
+except ValueError:
+    print("[❌] SMTP_PORT must be an integer. Please update your .env file.")
+    exit(1)
+
+# === Configuration ===
+URL = "https://raw.githubusercontent.com/joshhighet/ransomwatch/main/posts.json"
+LOTTERY_KEYWORDS = ["lotto", "lottery"]
+SENT_BREACHES_FILE = os.path.join(os.path.expanduser("~"), "sent_breaches.json")
+
+# === Ensure Sent Breaches File Exists ===
+if not os.path.exists(SENT_BREACHES_FILE):
+    with open(SENT_BREACHES_FILE, "w") as f:
+        json.dump([], f)
+
+# === Fetch Data from JSON File ===
+def fetch_ransom_data():
+    """Fetches and parses JSON ransomware attack data."""
+    try:
+        response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        print("\n[🔍] Checking JSON for lottery-related breaches...\n")
+        hacked_lotteries = []
+        for claim in data:
+            post_title = claim.get("post_title", "").lower()
+            if any(keyword in post_title for keyword in LOTTERY_KEYWORDS):
+                breach = {
+                    "Lottery": claim.get("post_title", "Unknown"),
+                    "Ransomware Group": claim.get("group_name", "Unknown"),
+                    "Date": claim.get("discovered", "Unknown")
+                }
+                hacked_lotteries.append(breach)
+                print(f"[✔] Found Breach: {breach['Lottery']} | {breach['Ransomware Group']} | {breach['Date']}")
+        return hacked_lotteries
+
+    except requests.RequestException as e:
+        print(f"[❌] Error fetching JSON data: {e}")
+        return []
+
+# === Load Previously Sent Breaches ===
+def load_sent_breaches():
+    """Loads previously sent breaches from a JSON file."""
+    try:
+        with open(SENT_BREACHES_FILE, "r") as f:
+            breaches = json.load(f)
+            print(f"[📂] Loaded {len(breaches)} sent breaches.")
+            return breaches
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"[⚠] Could not load sent breaches file ({e}). Starting fresh.")
+        return []
+
+# === Save Sent Breaches ===
+def save_sent_breaches(sent_breaches):
+    """Saves the updated breaches list to a JSON file."""
+    try:
+        with open(SENT_BREACHES_FILE, "w") as f:
+            json.dump(sent_breaches, f, indent=4)
+        print(f"[💾] Saved {len(sent_breaches)} breaches to {SENT_BREACHES_FILE}")
+    except Exception as e:
+        print(f"[❌] Error saving sent breaches: {e}")
+
+# === Email Function ===
+def send_email(subject, body):
+    """Sends an email with the given subject and body using SMTP."""
+    try:
+        msg = MIMEText(body)
+        msg["From"] = EMAIL_SENDER
+        msg["To"] = EMAIL_RECEIVER
+        msg["Subject"] = subject
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
+        print(f"[📧] Email sent: {subject}")
+
+    except Exception as e:
+        print(f"[❌] Failed to send email: {e}")
+
+# === Check for New Breaches and Notify ===
+def check_and_notify():
+    """Checks for new lottery breaches and sends an email notification if found."""
+    hacked_lotteries = fetch_ransom_data()
+    sent_breaches = load_sent_breaches()
+
+    # Filter out breaches that have already been notified
+    new_entries = [entry for entry in hacked_lotteries if entry not in sent_breaches]
+
+    if not new_entries:
+        print("[📭] No new lottery breaches found. No email sent.")
+        return
+
+    print("\n[📢] New breaches detected:")
+    for entry in new_entries:
+        print(f"   - {entry['Lottery']} | {entry['Ransomware Group']} | {entry['Date']}")
+
+    subject = "[Automated Alert] New Lottery Security Breach Detected"
+    body = "\n\n".join(
+        f"Lottery: {entry['Lottery']}\nRansomware Group: {entry['Ransomware Group']}\nDate: {entry['Date']}"
+        for entry in new_entries
+    )
+
+    send_email(subject, body)
+    # Update the sent breaches file with the newly notified entries
+    save_sent_breaches(sent_breaches + new_entries)
+
+# === Run Initial Check Immediately ===
+check_and_notify()
+
+# === Schedule Recurring Checks ===
+schedule.every().hour.do(check_and_notify)
+
+while True:
+    schedule.run_pending()
+    time.sleep(60)
