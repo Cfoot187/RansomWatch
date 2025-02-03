@@ -88,6 +88,24 @@ SMTP_PORT=587
 
    The script checks for these variables at startup and will exit if any required variable is misconfigured.
 ---
-   
-
+  
+## Usage 
+Run the breach notification tool with: 
+```bash python breach_notifier.py ``` 
+On startup, the script immediately checks for breaches and then continues to run, checking for new incidents every hour. --- 
+## Scheduling 
+The tool leverages the `schedule` library to check for breaches on an hourly basis:
+```python schedule.every().hour.do(check_and_notify) ``` 
+The script then enters an infinite loop, running pending scheduled jobs every minute. Adjust the schedule as needed for your environment. --- 
+## Troubleshooting 
+### Missing Environment Variables 
+Ensure that your `.env` file exists in the expected location and includes all the necessary variables. 
+### SMTP Connection Issues 
+Confirm that your SMTP settings are correct and that your Google account has App Passwords enabled. Check your credentials if you encounter errors. 
+### JSON Feed Errors
+Verify that the JSON feed URL (`https://raw.githubusercontent.com/joshhighet/ransomwatch/main/posts.json`) is accessible and that your network connection is stable. 
+### Duplicate Notifications
+The tool maintains a `sent_breaches.json` file to track notifications. Delete or modify this file if you need to reset the notification history. --- 
+## License
+This project is licensed under the MIT License. See the (LICENSE) file for more details. 
    
