@@ -21,12 +21,12 @@ SMTP_PORT_STR  = os.getenv("SMTP_PORT")
 
 # Validate environment variables
 if not all([EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_RECEIVER, SMTP_SERVER, SMTP_PORT_STR]):
-    print("[❌] One or more required environment variables are missing. Please check your .env file.")
+    print("One or more required environment variables are missing. Please check your .env file.")
     exit(1)
 try:
     SMTP_PORT = int(SMTP_PORT_STR)
 except ValueError:
-    print("[❌] SMTP_PORT must be an integer. Please update your .env file.")
+    print("SMTP_PORT must be an integer. Please update your .env file.")
     exit(1)
 
 # === Configuration ===
@@ -47,7 +47,7 @@ def fetch_ransom_data():
         response.raise_for_status()
         data = response.json()
 
-        print("\n[🔍] Checking JSON for lottery-related breaches...\n")
+        print("\n Checking JSON for lottery-related breaches...\n")
         hacked_lotteries = []
         for claim in data:
             post_title = claim.get("post_title", "").lower()
@@ -62,7 +62,7 @@ def fetch_ransom_data():
         return hacked_lotteries
 
     except requests.RequestException as e:
-        print(f"[❌] Error fetching JSON data: {e}")
+        print(f" Error fetching JSON data: {e}")
         return []
 
 # === Load Previously Sent Breaches ===
@@ -71,7 +71,7 @@ def load_sent_breaches():
     try:
         with open(SENT_BREACHES_FILE, "r") as f:
             breaches = json.load(f)
-            print(f"[📂] Loaded {len(breaches)} sent breaches.")
+            print(f"Loaded {len(breaches)} sent breaches.")
             return breaches
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"[⚠] Could not load sent breaches file ({e}). Starting fresh.")
@@ -83,9 +83,9 @@ def save_sent_breaches(sent_breaches):
     try:
         with open(SENT_BREACHES_FILE, "w") as f:
             json.dump(sent_breaches, f, indent=4)
-        print(f"[💾] Saved {len(sent_breaches)} breaches to {SENT_BREACHES_FILE}")
+        print(f" Saved {len(sent_breaches)} breaches to {SENT_BREACHES_FILE}")
     except Exception as e:
-        print(f"[❌] Error saving sent breaches: {e}")
+        print(f"Error saving sent breaches: {e}")
 
 # === Email Function ===
 def send_email(subject, body):
@@ -102,10 +102,10 @@ def send_email(subject, body):
             server.ehlo()
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
-        print(f"[📧] Email sent: {subject}")
+        print(f" Email sent: {subject}")
 
     except Exception as e:
-        print(f"[❌] Failed to send email: {e}")
+        print(f" Failed to send email: {e}")
 
 # === Check for New Breaches and Notify ===
 def check_and_notify():
@@ -117,10 +117,10 @@ def check_and_notify():
     new_entries = [entry for entry in hacked_lotteries if entry not in sent_breaches]
 
     if not new_entries:
-        print("[📭] No new lottery breaches found. No email sent.")
+        print(" No new lottery breaches found. No email sent.")
         return
 
-    print("\n[📢] New breaches detected:")
+    print("\n New breaches detected:")
     for entry in new_entries:
         print(f"   - {entry['Lottery']} | {entry['Ransomware Group']} | {entry['Date']}")
 
