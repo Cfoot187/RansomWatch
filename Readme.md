@@ -56,6 +56,35 @@ Key aspects include:
 
 1. **Clone the Repository:**
 
-   ```bash
    git clone https://github.com/Cfoot187/RansomWatch.git
    cd RansomWatch
+
+
+---
+
+2. **Set Up a Virtual Environment (Optional but Recommended):**
+
+    python3 -m venv venv
+    source venv/bin/activate
+
+---
+
+## Configuration
+
+1. **Create a .env File:**
+
+   In your home directory (or adjust the path in the script accordingly), create a .env file with the following:
+
+      EMAIL_SENDER=your-email@example.com
+      EMAIL_PASSWORD=your-google-app-password
+      EMAIL_RECEIVER=receiver-email@example.com
+      SMTP_SERVER=smtp.gmail.com
+      SMTP_PORT=587
+   
+3. **Verify Environment Variables:**
+
+   The script checks for these variables at startup and will exit if any required variable is misconfigured.
+---
+   
+
+   
