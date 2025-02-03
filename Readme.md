@@ -1,6 +1,6 @@
 # RansomWatch
 
-RansomWatch is an automated breach notification system that monitors a trusted threat intelligence JSON feed for lottery-related security breaches. Running on a Raspberry Pi (or any Linux-based system), it securely sends email alerts using Google Apps App Passwords whenever a new incident is detected.
+RansomWatch is an automated breach notification system that monitors a trusted threat intelligence JSON feed for security breaches. While the below configuration is setup to monitor breaches related to lottery, the script can be tailored to anything. Running on a Raspberry Pi (or any Linux-based system), it securely sends email alerts using Google Apps App Passwords whenever a new incident is detected.
 
 This project not only helps in proactive monitoring but also served as a valuable learning experience in secure email practices, Python scripting, and automation.
 
@@ -71,22 +71,38 @@ Key aspects include:
 
 ## Configuration
 
-1. **Create a .env File:**
+## Google Apps App Password Setup
 
-   In your home directory (or adjust the path in the script accordingly), create a .env file with the following:
+To securely send email notifications via your Google account, you must generate an App Password. **Important:** Your Google account must have 2-Step Verification enabled to generate an App Password.
 
-```dotenv
-EMAIL_SENDER=your-email@example.com
-EMAIL_PASSWORD=your-google-app-password
-EMAIL_RECEIVER=receiver-email@example.com
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-```
+### Steps to Enable 2-Step Verification and Generate an App Password:
 
-   
-2. **Verify Environment Variables:**
+1. **Enable 2-Step Verification:**
+   - Sign in to your Google Account.
+   - Navigate to **Security**.
+   - Under "Signing in to Google," locate **2-Step Verification** and click on it.
+   - Follow the on-screen instructions to enable 2-Step Verification if it isn’t already enabled.
 
-   The script checks for these variables at startup and will exit if any required variable is misconfigured.
+2. **Generate an App Password:**
+   - Once 2-Step Verification is enabled, go back to the **Security** section.
+   - Click on **App passwords** (this option will appear only after enabling 2-Step Verification).
+   - You may be prompted to sign in again.
+   - In the App Passwords section, select the app and device for which you want to generate the password. For             example, choose "Mail" as the app and "Other (Custom name)" as the device (you might name it "RansomWatch").
+   - Click **Generate**.
+   - Copy the 16-character password that is displayed.
+
+3. **Configure Your Application:**
+   - Update your `.env` file with the generated App Password. For example:
+     ```dotenv
+     EMAIL_SENDER=your-email@example.com
+     EMAIL_PASSWORD=your-generated-app-password
+     EMAIL_RECEIVER=receiver-email@example.com
+     SMTP_SERVER=smtp.gmail.com
+     SMTP_PORT=587
+     ```
+
+By following these steps, you'll ensure that your application can securely send email notifications using your Google account credentials.
+
 ---
   
 ## Usage 
