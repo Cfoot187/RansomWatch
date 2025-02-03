@@ -71,11 +71,11 @@ Key aspects include:
 
 ## Configuration
 
-## Google Apps App Password Setup
+**Google Apps App Password Setup**
 
 To securely send email notifications via your Google account, you must generate an App Password. **Important:** Your Google account must have 2-Step Verification enabled to generate an App Password.
 
-### Steps to Enable 2-Step Verification and Generate an App Password:
+*Steps to Enable 2-Step Verification and Generate an App Password:*
 
 1. **Enable 2-Step Verification:**
    - Sign in to your Google Account.
