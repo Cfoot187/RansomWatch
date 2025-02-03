@@ -84,7 +84,7 @@ SMTP_PORT=587
 ```
 
    
-3. **Verify Environment Variables:**
+2. **Verify Environment Variables:**
 
    The script checks for these variables at startup and will exit if any required variable is misconfigured.
 ---
