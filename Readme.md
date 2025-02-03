@@ -75,11 +75,11 @@ Key aspects include:
 
    In your home directory (or adjust the path in the script accordingly), create a .env file with the following:
 
-EMAIL_SENDER=your-email@example.com
-EMAIL_PASSWORD=your-google-app-password
-EMAIL_RECEIVER=receiver-email@example.com
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
+    EMAIL_SENDER=your-email@example.com
+    EMAIL_PASSWORD=your-google-app-password
+    EMAIL_RECEIVER=receiver-email@example.com
+    SMTP_SERVER=smtp.gmail.com
+    SMTP_PORT=587
 
    
 3. **Verify Environment Variables:**
