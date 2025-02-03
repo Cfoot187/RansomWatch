@@ -107,7 +107,7 @@ By following these steps, you'll ensure that your application can securely send 
   
 ## Usage 
 Run the breach notification tool with: 
-```bash python breach_notifier.py ``` 
+```python breach_notifier.py ``` 
 On startup, the script immediately checks for breaches and then continues to run, checking for new incidents every hour. --- 
 ## Scheduling 
 The tool leverages the `schedule` library to check for breaches on an hourly basis:
@@ -121,7 +121,7 @@ Confirm that your SMTP settings are correct and that your Google account has App
 ### JSON Feed Errors
 Verify that the JSON feed URL (`https://raw.githubusercontent.com/joshhighet/ransomwatch/main/posts.json`) is accessible and that your network connection is stable. 
 ### Duplicate Notifications
-The tool maintains a `sent_breaches.json` file to track notifications. Delete or modify this file if you need to reset the notification history. --- 
+The tool maintains a `sent_breaches.json` file to track notifications. Delete or modify this file if you need to reset the notification history.
 ## License
 This project is licensed under the MIT License. See the (LICENSE) file for more details. 
    
